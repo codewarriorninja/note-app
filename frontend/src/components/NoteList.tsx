@@ -3,11 +3,17 @@ import { Link } from 'react-router-dom';
 import useStore from '../store/useStore';
 
 export const NotesList: React.FC = () => {
-  const { notes, fetchNotes, isLoading, error } = useStore();
+  const { notes, fetchNotes, deleteNote, isLoading, error } = useStore();
 
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this note?')) {
+      await deleteNote(id);
+    }
+  };
 
   if (isLoading) return <div>Loading notes...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -23,9 +29,17 @@ export const NotesList: React.FC = () => {
             <div key={note._id} className="border p-4 rounded shadow">
               <h3 className="text-xl font-semibold mb-2">{note.title}</h3>
               <p className="mb-4 text-gray-600">{note.content.substring(0, 100)}...</p>
-              <Link to={`/notes/${note._id}`} className="text-blue-500 hover:text-blue-700">
-                View Details
-              </Link>
+              <div className="flex justify-between items-center">
+                <Link to={`/notes/${note._id}`} className="text-blue-500 hover:text-blue-700">
+                  View Details
+                </Link>
+                <button
+                  onClick={() => handleDelete(note._id)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>

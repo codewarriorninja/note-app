@@ -15,7 +15,7 @@ type NoteFormData = z.infer<typeof schema>;
 export const Notes: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { notes, fetchNotes, addNote, updateNote, isLoading, error } = useStore();
+  const { notes, fetchNotes, addNote, updateNote, deleteNote, isLoading, error } = useStore();
   const [currentNote, setCurrentNote] = useState<NoteFormData | null>(null);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<NoteFormData>({
@@ -45,6 +45,13 @@ export const Notes: React.FC = () => {
     navigate('/notes');
   };
 
+  const handleDelete = async () => {
+    if (id && window.confirm('Are you sure you want to delete this note?')) {
+      await deleteNote(id);
+      navigate('/notes');
+    }
+  };
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
@@ -72,9 +79,20 @@ export const Notes: React.FC = () => {
           ></textarea>
           {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
         </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-          {id ? 'Update Note' : 'Add Note'}
-        </button>
+        <div className="flex justify-between">
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            {id ? 'Update Note' : 'Add Note'}
+          </button>
+          {id && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Delete Note
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
